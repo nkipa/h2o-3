@@ -34,6 +34,8 @@ public class ModelSchemaV3<
   @API(help="The build parameters for the model (e.g. K for KMeans).", direction=API.Direction.OUTPUT)
   public PS parameters;
 
+  public PS effectiveParameters;
+  
   @API(help="The build output for the model (e.g. the cluster centers for KMeans).", direction=API.Direction.OUTPUT)
   public OS output;
 
@@ -47,6 +49,7 @@ public class ModelSchemaV3<
   public ModelSchemaV3(M m) {
     super(m);
     PojoUtils.copyProperties(this.parameters, m._parms, PojoUtils.FieldNaming.ORIGIN_HAS_UNDERSCORES);
+    PojoUtils.copyProperties(this.effectiveParameters, m._effectiveParms, PojoUtils.FieldNaming.ORIGIN_HAS_UNDERSCORES);
     PojoUtils.copyProperties(this.output, m._output, PojoUtils.FieldNaming.ORIGIN_HAS_UNDERSCORES);
   }
 
@@ -75,6 +78,8 @@ public class ModelSchemaV3<
     this.have_mojo = m.haveMojo();
     parameters = createParametersSchema();
     parameters.fillFromImpl(m._parms);
+    effectiveParameters = createParametersSchema();
+    effectiveParameters.fillFromImpl(m._effectiveParms);
     parameters.model_id = model_id;
 
     output = createOutputSchema();
@@ -95,7 +100,10 @@ public class ModelSchemaV3<
     // Builds ModelParameterSchemaV2 objects for each field, and then calls writeJSON on the array
     try {
       PS defaults = createParametersSchema().fillFromImpl(parameters.getImplClass().newInstance());
-      ModelParametersSchemaV3.writeParametersJSON(ab, parameters, defaults);
+      ModelParametersSchemaV3.writeParametersJSON(ab, parameters, defaults, "parameters");
+      ab.put1(',');
+      defaults = createParametersSchema().fillFromImpl(effectiveParameters.getImplClass().newInstance());
+      ModelParametersSchemaV3.writeParametersJSON(ab, effectiveParameters, defaults, "effectiveParameters");
       ab.put1(',');
     }
     catch (Exception e) {

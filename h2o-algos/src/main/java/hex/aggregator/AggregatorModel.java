@@ -56,7 +56,14 @@ public class AggregatorModel extends Model<AggregatorModel,AggregatorModel.Aggre
   public Key<Vec> _exemplar_assignment_vec_key;
 
 
-  public AggregatorModel(Key selfKey, AggregatorParameters parms, AggregatorOutput output) { super(selfKey,parms,output); }
+  public AggregatorModel(Key selfKey, AggregatorParameters parms, AggregatorOutput output) { 
+    super(selfKey,parms,output);
+    initDefaultParam();
+  }
+  
+  void initDefaultParam() {
+    _effectiveParms = (AggregatorParameters) _parms.clone();
+  }
 
   @Override
   protected Frame predictScoreImpl(Frame orig, Frame adaptedFr, String destination_key, final Job j, boolean computeMetrics, CFuncRef customMetricFunc) {

@@ -28,8 +28,8 @@
 #'        to 1.0. If set to -1, sample_rate is disabled and sample_size will be used instead. Defaults to -1.
 #' @param col_sample_rate_change_per_level Relative change of the column sampling rate for every level (must be > 0.0 and <= 2.0) Defaults to 1.
 #' @param col_sample_rate_per_tree Column sample rate per tree (from 0.0 to 1.0) Defaults to 1.
-#' @param categorical_encoding Encoding scheme for categorical features Must be one of: "AUTO", "Enum", "OneHotInternal", "OneHotExplicit",
-#'        "Binary", "Eigen", "LabelEncoder", "SortByResponse", "EnumLimited". Defaults to AUTO.
+#' @param categorical_encoding Encoding scheme for categorical features Must be one of: "None", "AUTO", "Enum", "OneHotInternal",
+#'        "OneHotExplicit", "Binary", "Eigen", "LabelEncoder", "SortByResponse", "EnumLimited". Defaults to AUTO.
 #' @param stopping_rounds Early stopping based on convergence of stopping_metric. Stop if simple moving average of length k of the
 #'        stopping_metric does not improve for k:=stopping_rounds scoring events (0 to disable) Defaults to 0.
 #' @param stopping_metric Metric to use for early stopping (AUTO: logloss for classification, deviance for regression and
@@ -56,7 +56,7 @@ h2o.isolationForest <- function(training_frame,
                                 sample_rate = -1,
                                 col_sample_rate_change_per_level = 1,
                                 col_sample_rate_per_tree = 1,
-                                categorical_encoding = c("AUTO", "Enum", "OneHotInternal", "OneHotExplicit", "Binary", "Eigen", "LabelEncoder", "SortByResponse", "EnumLimited"),
+                                categorical_encoding = c("None", "AUTO", "Enum", "OneHotInternal", "OneHotExplicit", "Binary", "Eigen", "LabelEncoder", "SortByResponse", "EnumLimited"),
                                 stopping_rounds = 0,
                                 stopping_metric = c("AUTO", "anomaly_score"),
                                 stopping_tolerance = 0.01,

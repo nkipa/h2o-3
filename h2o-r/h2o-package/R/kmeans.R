@@ -33,8 +33,8 @@
 #'        Defaults to -1 (time-based random number).
 #' @param init Initialization mode Must be one of: "Random", "PlusPlus", "Furthest", "User". Defaults to Furthest.
 #' @param max_runtime_secs Maximum allowed runtime in seconds for model training. Use 0 to disable. Defaults to 0.
-#' @param categorical_encoding Encoding scheme for categorical features Must be one of: "AUTO", "Enum", "OneHotInternal", "OneHotExplicit",
-#'        "Binary", "Eigen", "LabelEncoder", "SortByResponse", "EnumLimited". Defaults to AUTO.
+#' @param categorical_encoding Encoding scheme for categorical features Must be one of: "None", "AUTO", "Enum", "OneHotInternal",
+#'        "OneHotExplicit", "Binary", "Eigen", "LabelEncoder", "SortByResponse", "EnumLimited". Defaults to AUTO.
 #' @param export_checkpoints_dir Automatically export generated models to this directory.
 #' @param cluster_size_constraints An array specifying the minimum number of points that should be in each cluster. The length of the constraints
 #'        array has to be the same as the number of clusters.
@@ -69,7 +69,7 @@ h2o.kmeans <- function(training_frame,
                        seed = -1,
                        init = c("Random", "PlusPlus", "Furthest", "User"),
                        max_runtime_secs = 0,
-                       categorical_encoding = c("AUTO", "Enum", "OneHotInternal", "OneHotExplicit", "Binary", "Eigen", "LabelEncoder", "SortByResponse", "EnumLimited"),
+                       categorical_encoding = c("None", "AUTO", "Enum", "OneHotInternal", "OneHotExplicit", "Binary", "Eigen", "LabelEncoder", "SortByResponse", "EnumLimited"),
                        export_checkpoints_dir = NULL,
                        cluster_size_constraints = NULL)
 {

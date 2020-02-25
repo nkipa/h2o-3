@@ -32,6 +32,7 @@ public class GLMModel extends Model<GLMModel,GLMModel.GLMParameters,GLMModel.GLM
   final static public double _OneOEPS = 1e6;
   public GLMModel(Key selfKey, GLMParameters parms, GLM job, double [] ymu, double ySigma, double lambda_max, long nobs) {
     super(selfKey, parms, job == null?new GLMOutput():new GLMOutput(job));
+    initDefaultParam();
     // modelKey, parms, null, Double.NaN, Double.NaN, Double.NaN, -1
     _ymu = ymu;
     _ySigma = ySigma;
@@ -40,6 +41,16 @@ public class GLMModel extends Model<GLMModel,GLMModel.GLMParameters,GLMModel.GLM
     _nullDOF = nobs - (parms._intercept?1:0);
   }
 
+  void initDefaultParam() {
+    if (_parms._fold_assignment == Model.Parameters.FoldAssignmentScheme.AUTO) {
+      if (_parms._nfolds > 0 && _parms._fold_column == null){
+        _effectiveParms._fold_assignment = Parameters.FoldAssignmentScheme.Random;
+      } else {
+        _effectiveParms._fold_assignment = null;
+      }
+    }
+  }
+  
   public void setVcov(double[][] inv) {_output._vcov = inv;}
 
   public static class RegularizationPath extends Iced {

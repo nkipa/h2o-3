@@ -216,12 +216,47 @@ public class XGBoostModel extends Model<XGBoostModel, XGBoostModel.XGBoostParame
 
   public XGBoostModel(Key<XGBoostModel> selfKey, XGBoostParameters parms, XGBoostOutput output, Frame train, Frame valid) {
     super(selfKey,parms,output);
+    initDefaultParam();
     final DataInfo dinfo = makeDataInfo(train, valid, _parms, output.nclasses());
     DKV.put(dinfo);
     setDataInfoToOutput(dinfo);
     model_info = new XGBoostModelInfo(parms, dinfo);
   }
 
+  void initDefaultParam() {
+    if (_parms._stopping_metric == ScoreKeeper.StoppingMetric.AUTO) {
+      if (_parms._stopping_rounds == 0) {
+        _effectiveParms._stopping_metric = null;
+      } else {
+        if (_output.isClassifier()) {
+          _effectiveParms._stopping_metric = ScoreKeeper.StoppingMetric.logloss;
+        } else if (_output.isAutoencoder()) {
+          _effectiveParms._stopping_metric = ScoreKeeper.StoppingMetric.MSE;
+        } else {
+          _effectiveParms._stopping_metric = ScoreKeeper.StoppingMetric.deviance;
+        }
+      }
+    }
+    if (_parms._categorical_encoding == Parameters.CategoricalEncodingScheme.AUTO) {
+      if (_output.nclasses() == 1)
+        _effectiveParms._categorical_encoding = Parameters.CategoricalEncodingScheme.None;
+      else
+        _effectiveParms._categorical_encoding = Parameters.CategoricalEncodingScheme.OneHotInternal;
+    }
+    if (_parms._fold_assignment == Model.Parameters.FoldAssignmentScheme.AUTO) {
+      if (_parms._nfolds > 0 && _parms._fold_column == null){
+        _effectiveParms._fold_assignment = Parameters.FoldAssignmentScheme.Random;
+      } else {
+        _effectiveParms._fold_assignment = null;
+      }
+    }
+    if (_parms._distribution == DistributionFamily.AUTO) {
+      if (_output.nclasses() == 1) {_effectiveParms._distribution = DistributionFamily.gaussian;}
+      if (_output.nclasses() == 2) {_effectiveParms._distribution = DistributionFamily.bernoulli;}
+      if (_output.nclasses() >= 3) {_effectiveParms._distribution = DistributionFamily.multinomial;}
+    }
+  }
+  
   // useful for debugging
   @SuppressWarnings("unused")
   public void dump(String format) {

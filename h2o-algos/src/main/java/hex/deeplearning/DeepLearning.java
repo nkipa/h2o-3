@@ -212,6 +212,7 @@ public class DeepLearning extends ModelBuilder<DeepLearningModel,DeepLearningMod
       long cs2 = _parms.checksum();
       assert(cs == cs2);
     }
+    
 
     /**
      * Train a Deep Learning model, assumes that all members are populated
@@ -302,6 +303,7 @@ public class DeepLearning extends ModelBuilder<DeepLearningModel,DeepLearningMod
           if (cp != null) cp.unlock(_job);
         }
       }
+      initDefaultParam(cp);
       trainModel(cp);
       for (Key k : removeMe) DKV.remove(k);
 
@@ -324,6 +326,36 @@ public class DeepLearning extends ModelBuilder<DeepLearningModel,DeepLearningMod
         }
       } finally {
         Scope.exit(keep.toArray(new Key[keep.size()]));
+      }
+    }
+    
+    void initDefaultParam(DeepLearningModel deepLearningModel) {
+      deepLearningModel._effectiveParms._distribution = deepLearningModel._dist._family;
+      if (_parms._stopping_metric == ScoreKeeper.StoppingMetric.AUTO){
+        if (_parms._stopping_rounds == 0){
+          deepLearningModel._effectiveParms._stopping_metric = null;
+        } else {
+          if (deepLearningModel._output.isClassifier()) {
+            deepLearningModel._effectiveParms._stopping_metric = ScoreKeeper.StoppingMetric.logloss;
+          } else if (!deepLearningModel.isSupervised()) {
+            deepLearningModel._effectiveParms._stopping_metric = ScoreKeeper.StoppingMetric.MSE;
+          } else {
+            deepLearningModel._effectiveParms._stopping_metric = ScoreKeeper.StoppingMetric.deviance;
+          }
+        }
+      }
+      if (_parms._categorical_encoding == Model.Parameters.CategoricalEncodingScheme.AUTO) {
+        if (deepLearningModel._output.nclasses() == 1)
+          deepLearningModel._effectiveParms._categorical_encoding = Model.Parameters.CategoricalEncodingScheme.None;
+        else
+          deepLearningModel._effectiveParms._categorical_encoding = Model.Parameters.CategoricalEncodingScheme.OneHotInternal;
+      }
+      if (_parms._fold_assignment == Model.Parameters.FoldAssignmentScheme.AUTO) {
+        if (_parms._nfolds > 0 && _parms._fold_column == null){
+          deepLearningModel._effectiveParms._fold_assignment = Model.Parameters.FoldAssignmentScheme.Random;
+        } else {
+          deepLearningModel._effectiveParms._fold_assignment = null;
+        }
       }
     }
 

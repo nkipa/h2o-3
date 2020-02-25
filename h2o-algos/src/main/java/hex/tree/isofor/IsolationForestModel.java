@@ -54,7 +54,23 @@ public class IsolationForestModel extends SharedTreeModel<IsolationForestModel, 
     }
   }
 
-  public IsolationForestModel(Key<IsolationForestModel> selfKey, IsolationForestParameters parms, IsolationForestOutput output ) { super(selfKey, parms, output); }
+  public IsolationForestModel(Key<IsolationForestModel> selfKey, IsolationForestParameters parms, IsolationForestOutput output ) { 
+    super(selfKey, parms, output);
+    initDefaultParam();
+  }
+
+  void initDefaultParam() {
+    if (_parms._stopping_metric == ScoreKeeper.StoppingMetric.AUTO){
+      if (_parms._stopping_rounds == 0) {
+        _effectiveParms._stopping_metric = null;
+      } else {
+        _effectiveParms._stopping_metric = ScoreKeeper.StoppingMetric.anomaly_score;
+      }
+    }
+    if (_parms._categorical_encoding == Parameters.CategoricalEncodingScheme.AUTO) {
+        _effectiveParms._categorical_encoding = Parameters.CategoricalEncodingScheme.Enum;
+    }
+  }
 
   @Override
   public ModelMetrics.MetricBuilder makeMetricBuilder(String[] domain) {

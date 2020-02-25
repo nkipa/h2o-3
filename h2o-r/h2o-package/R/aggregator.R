@@ -15,8 +15,8 @@
 #' @param rel_tol_num_exemplars Relative tolerance for number of exemplars (e.g, 0.5 is +/- 50 percents) Defaults to 0.5.
 #' @param transform Transformation of training data Must be one of: "NONE", "STANDARDIZE", "NORMALIZE", "DEMEAN", "DESCALE".
 #'        Defaults to NORMALIZE.
-#' @param categorical_encoding Encoding scheme for categorical features Must be one of: "AUTO", "Enum", "OneHotInternal", "OneHotExplicit",
-#'        "Binary", "Eigen", "LabelEncoder", "SortByResponse", "EnumLimited". Defaults to AUTO.
+#' @param categorical_encoding Encoding scheme for categorical features Must be one of: "None", "AUTO", "Enum", "OneHotInternal",
+#'        "OneHotExplicit", "Binary", "Eigen", "LabelEncoder", "SortByResponse", "EnumLimited". Defaults to AUTO.
 #' @param save_mapping_frame \code{Logical}. Whether to export the mapping of the aggregated frame Defaults to FALSE.
 #' @param num_iteration_without_new_exemplar The number of iterations to run before aggregator exits if the number of exemplars collected didn't change
 #'        Defaults to 500.
@@ -43,7 +43,7 @@ h2o.aggregator <- function(training_frame,
                            target_num_exemplars = 5000,
                            rel_tol_num_exemplars = 0.5,
                            transform = c("NONE", "STANDARDIZE", "NORMALIZE", "DEMEAN", "DESCALE"),
-                           categorical_encoding = c("AUTO", "Enum", "OneHotInternal", "OneHotExplicit", "Binary", "Eigen", "LabelEncoder", "SortByResponse", "EnumLimited"),
+                           categorical_encoding = c("None", "AUTO", "Enum", "OneHotInternal", "OneHotExplicit", "Binary", "Eigen", "LabelEncoder", "SortByResponse", "EnumLimited"),
                            save_mapping_frame = FALSE,
                            num_iteration_without_new_exemplar = 500,
                            export_checkpoints_dir = NULL)

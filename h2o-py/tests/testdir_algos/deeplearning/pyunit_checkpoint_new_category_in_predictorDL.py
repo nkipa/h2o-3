@@ -15,7 +15,7 @@ def checkpoint_new_category_in_predictor():
   m1 = H2ODeepLearningEstimator(epochs=100)
   m1.train(x=[0,1,2,4], y=3, training_frame=sv1)
 
-  m2 = H2ODeepLearningEstimator(epochs=200, checkpoint=m1.model_id)
+  m2 = H2ODeepLearningEstimator(epochs=200, checkpoint=m1.model_id, distribution=m1.actual_params['distribution'])
   m2.train(x=[0,1,2,4], y=3, training_frame=sv2)
   print("checkpoint_new_category_in_predictor-2")
 

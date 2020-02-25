@@ -638,6 +638,7 @@ public abstract class SharedTreeModel<
     switch (_parms._categorical_encoding) {
       case AUTO:
       case Enum:
+      case None:  
         return CategoricalEncoding.AUTO;
       case OneHotExplicit:
         return CategoricalEncoding.OneHotExplicit;

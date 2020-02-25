@@ -260,7 +260,7 @@ public class DeepLearningModel extends Model<DeepLearningModel,DeepLearningModel
   public long _timeLastScoreStart; //start actual scoring
   private long _timeLastScoreEnd;  //finished actual scoring
   private long _timeLastPrintStart;
-
+  
   private void checkTimingConsistency() {
     assert(total_scoring_time_ms <= total_training_time_ms);
     assert(total_setup_time_ms <= total_training_time_ms);
@@ -2217,6 +2217,7 @@ public class DeepLearningModel extends Model<DeepLearningModel,DeepLearningModel
         // Automatically set the distribution
         if (fromParms._distribution == DistributionFamily.AUTO) {
           // For classification, allow AUTO/bernoulli/multinomial with losses CrossEntropy/Quadratic/Huber/Absolute
+          if (nClasses == 1) toParms._distribution = DistributionFamily.gaussian;
           if (nClasses > 1) {
             toParms._distribution = nClasses == 2 ? DistributionFamily.bernoulli : DistributionFamily.multinomial;
           }

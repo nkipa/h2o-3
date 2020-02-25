@@ -47,6 +47,7 @@ public abstract class Model<M extends Model<M,P,O>, P extends Model.Parameters, 
         implements StreamWriter {
 
   public P _parms;   // TODO: move things around so that this can be protected
+  public P _effectiveParms;
   public O _output;  // TODO: move things around so that this can be protected
   public String[] _warnings = new String[0];  // warning associated with model building
   public transient String[] _warningsP;     // warnings associated with prediction only (transient, not persisted)
@@ -218,6 +219,7 @@ public abstract class Model<M extends Model<M,P,O>, P extends Model.Parameters, 
       AUTO, Random, Modulo, Stratified
     }
     public enum CategoricalEncodingScheme {
+      None(false),
       AUTO(false),
       OneHotInternal(false),
       OneHotExplicit(false),
@@ -906,6 +908,7 @@ public abstract class Model<M extends Model<M,P,O>, P extends Model.Parameters, 
     super(selfKey);
     assert parms != null;
     _parms = parms;
+    _effectiveParms = (P) _parms.clone();
     _output = output;  // Output won't be set if we're assert output != null;
     if (_output != null)
       _output.startClock();
