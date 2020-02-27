@@ -17,6 +17,7 @@ from h2o.job import H2OJob
 from h2o.utils.compatibility import *  # NOQA
 from h2o.utils.shared_utils import quoted
 from h2o.utils.typechecks import assert_is_type, is_type, numeric, FunctionType
+from h2o.segment_models import H2OSegmentModels
 from ..model.autoencoder import H2OAutoEncoderModel
 from ..model.binomial import H2OBinomialModel
 from ..model.clustering import H2OClusteringModel
@@ -114,11 +115,27 @@ class H2OEstimator(ModelBase):
         self._train(parms, verbose=verbose)
 
 
+    def bulk_train(self, x=None, y=None, training_frame=None, offset_column=None, fold_column=None,
+                   weights_column=None, validation_frame=None, max_runtime_secs=None, ignored_columns=None,
+                   segments=None, verbose=False):
+        assert_is_type(verbose, bool)
+        parms = self._make_parms(x=x, y=y, training_frame=training_frame, offset_column=offset_column,
+                                 fold_column=fold_column, weights_column=weights_column,
+                                 validation_frame=validation_frame, max_runtime_secs=max_runtime_secs,
+                                 ignored_columns=ignored_columns, model_id=None, verbose=verbose)
+        parms["segments"] = H2OEstimator._keyify_if_h2oframe(segments)
+
+        rest_ver = self._get_rest_version(parms)
+        bulk_train_response = h2o.api("POST /%d/BulkModelBuilders/%s" % (rest_ver, self.algo), data=parms)
+        job = H2OJob(bulk_train_response, job_type=(self.algo + " Bulk Model Build"))
+        job.poll()
+        return H2OSegmentModels(job.dest_key)
+
+
     def _train(self, parms, verbose=False):
         assert_is_type(verbose, bool)
 
         rest_ver = self._get_rest_version(parms)
-
         model_builder_json = h2o.api("POST /%d/ModelBuilders/%s" % (rest_ver, self.algo), data=parms)
         model = H2OJob(model_builder_json, job_type=(self.algo + " Model Build"))
 
