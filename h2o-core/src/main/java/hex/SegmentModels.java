@@ -1,9 +1,6 @@
 package hex;
 
-import water.DKV;
-import water.Key;
-import water.Keyed;
-import water.MRTask;
+import water.*;
 import water.api.schemas3.KeyV3;
 import water.fvec.Chunk;
 import water.fvec.Frame;
@@ -105,6 +102,32 @@ public class SegmentModels extends Keyed<SegmentModels> {
             ncs[2].addNA();
         }
       }
+    }
+  }
+
+  @Override
+  protected Futures remove_impl(Futures fs, boolean cascade) {
+    if (_segments != null) {
+      _segments.remove(fs, cascade);
+    }
+    if (_results != null) {
+      fs.add(new CleanUpSegmentResults().dfork(_results));
+    }
+    return fs;
+  }
+
+  static class CleanUpSegmentResults extends MRTask<CleanUpSegmentResults> {
+    @Override
+    public void map(Chunk c) {
+      BufferedString bs = new BufferedString();
+      Futures fs = new Futures();
+      for (int i = 0; i < c._len; i++)
+        Keyed.remove(Key.make(c.atStr(bs, i).toString()), fs, true);
+      fs.blockForPending();
+    }
+    @Override
+    protected void postGlobal() {
+      _fr.remove();
     }
   }
   
