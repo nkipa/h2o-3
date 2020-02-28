@@ -772,7 +772,7 @@ class H2OStackedEnsembleEstimator(H2OEstimator):
         if not has_training_frame:
             training_frame = blending_frame  # used to bypass default checks in super class and backend and to guarantee default metrics
 
-        sup = super(self.__class__, self) 
+        sup = super(self.__class__, self)
 
         def extend_parms(parms):
             if blending_frame is not None:
