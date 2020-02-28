@@ -38,7 +38,7 @@ def test_gbm_bulk_train():
     mp = models_list.as_data_frame()
     # Check built models
     for i in range(mp.shape[0]):
-        segment = mp.iloc[i][segment_col]
+        segment = int(mp.iloc[i][segment_col])
         if segment != bad_segment:
             model_id = mp.iloc[i]["Model ID"]
             model = h2o.get_model(model_id)
