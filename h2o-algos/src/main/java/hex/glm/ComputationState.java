@@ -336,6 +336,7 @@ public final class ComputationState {
       case quasibinomial:
       case ordinal:
       case multinomial:
+      case fractionalbinomial:
         return 2*likelihood();
       case poisson:
       case gamma:

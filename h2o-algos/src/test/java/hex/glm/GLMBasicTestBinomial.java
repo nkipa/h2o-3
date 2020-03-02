@@ -35,6 +35,40 @@ public class GLMBasicTestBinomial extends TestUtil {
   static Frame _airlinesTest;
   double _tol = 1e-10;
 
+  /**
+   * Easy test for fractional binomial implementation
+   */
+  @Test
+  public void testFractionalBinomial() {
+    try {
+      Scope.enter();
+      Frame trainData = parse_test_file("smalldata/glm_test/fractional_binomial1.csv");
+      Scope.track(trainData);
+      GLMParameters parms = new GLMParameters();
+      parms._train = trainData._key;
+      parms._family = Family.fractionalbinomial;
+      parms._response_column = "y";
+      parms._ignored_columns = new String[]{"z", "conc"};
+      parms._compute_p_values = true;
+      parms._standardize =false;
+      parms._lambda = new double[]{0};
+      GLMModel model = new GLM(parms).trainModel().get();
+      Scope.track_generic(model);
+      
+      GLMParameters parmsB= new GLMParameters();
+      parmsB._train = trainData._key;
+      parmsB._family = Family.binomial;
+      parmsB._response_column = "z";
+      parmsB._weights_column = "y";
+      parmsB._standardize=false;
+      parmsB._ignored_columns = new String[]{"conc"};
+      parmsB._lambda = new double[]{0};
+      GLMModel modelB = new GLM(parmsB).trainModel().get();
+      Scope.track_generic(modelB);
+    } finally {
+      Scope.exit();
+    }
+  }
   // test and make sure the h2opredict, pojo and mojo predict agrees with multinomial dataset that includes
   // both enum and numerical datasets
   @Test

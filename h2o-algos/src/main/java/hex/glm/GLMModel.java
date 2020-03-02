@@ -110,7 +110,8 @@ public class GLMModel extends Model<GLMModel,GLMModel.GLMParameters,GLMModel.GLM
   }
 
   @Override public ModelMetrics.MetricBuilder makeMetricBuilder(String[] domain) {
-    if(domain == null && (_parms._family == Family.binomial || _parms._family == Family.quasibinomial))
+    if(domain == null && (_parms._family == Family.binomial || _parms._family == Family.quasibinomial 
+            || _parms._family == Family.fractionalbinomial))
       domain = binomialClassNames;
     if (_parms._HGLM) {
       String[] domaint = new String[]{"HGLM_" + _parms._family.toString() + "_" + _parms._rand_family[0].toString()};
@@ -358,6 +359,7 @@ public class GLMModel extends Model<GLMModel,GLMModel.GLMParameters,GLMModel.GLM
             break;
           case quasibinomial:
           case binomial:
+          case fractionalbinomial:
             if (_link != Link.logit) // fixme: R also allows log, but it's not clear when can be applied and what should we do in case the predictions are outside of 0/1.
               throw new IllegalArgumentException("Incompatible link function for selected family. Only logit is allowed for family=" + _family + ". Got " + _link);
             break;
@@ -435,6 +437,7 @@ public class GLMModel extends Model<GLMModel,GLMModel.GLMParameters,GLMModel.GLM
         case multinomial:
         case ordinal:
         case quasibinomial:
+        case fractionalbinomial:
           return mu * (1 - mu);
         case poisson:
           return mu;
@@ -453,6 +456,7 @@ public class GLMModel extends Model<GLMModel,GLMModel.GLMParameters,GLMModel.GLM
           return _link == Link.identity;
         case binomial:
         case quasibinomial:
+        case fractionalbinomial:
           return _link == Link.logit;
         case poisson:
           return _link == Link.log;
@@ -472,6 +476,7 @@ public class GLMModel extends Model<GLMModel,GLMModel.GLMParameters,GLMModel.GLM
           return (yr - ym) * (yr - ym);
         case quasibinomial:
         case binomial:
+        case fractionalbinomial:
           return 2 * ((y_log_y(yr, ym)) + y_log_y(1 - yr, 1 - ym));
         case poisson:
           if( yr == 0 ) return 2 * ym;
@@ -593,7 +598,7 @@ public class GLMModel extends Model<GLMModel,GLMModel.GLMParameters,GLMModel.GLM
     
     // supported families
     public enum Family {
-      gaussian(Link.identity), binomial(Link.logit), quasibinomial(Link.logit),poisson(Link.log),
+      gaussian(Link.identity), binomial(Link.logit), fractionalbinomial(Link.logit), quasibinomial(Link.logit),poisson(Link.log),
       gamma(Link.inverse), multinomial(Link.multinomial), tweedie(Link.tweedie), ordinal(Link.ologit), 
       negativebinomial(Link.log);
       public final Link defaultLink;
@@ -806,6 +811,7 @@ public class GLMModel extends Model<GLMModel,GLMModel.GLMParameters,GLMModel.GLM
           return 1;
         case quasibinomial:
         case binomial:
+        case fractionalbinomial:
           double res = mu * (1 - mu);
           return res < _EPS?_EPS:res;
         case poisson:
@@ -832,6 +838,7 @@ public class GLMModel extends Model<GLMModel,GLMModel.GLMParameters,GLMModel.GLM
           double res = -2 * (yr*Math.log(ym) + (1-yr)*Math.log(1-ym));
           return res;
         case binomial:
+        case fractionalbinomial:
           return 2 * ((MathUtils.y_log_y(yr, ym)) + MathUtils.y_log_y(1 - yr, 1 - ym));
         case poisson:
           if( yr == 0 ) return 2 * ym;
@@ -874,6 +881,7 @@ public class GLMModel extends Model<GLMModel,GLMModel.GLMParameters,GLMModel.GLM
           x.dev = 2*x.l;
           break;
         case binomial:
+        case fractionalbinomial:
           x.l = ym == yr?0:w*((MathUtils.y_log_y(yr, ym)) + MathUtils.y_log_y(1 - yr, 1 - ym));
           x.dev = 2*x.l;
           break;
@@ -904,6 +912,7 @@ public class GLMModel extends Model<GLMModel,GLMModel.GLMParameters,GLMModel.GLM
           return .5 * (yr - ym) * (yr - ym);
         case binomial:
         case quasibinomial:
+        case fractionalbinomial:
           if (yr == ym) return 0;
           return .5 * deviance(yr, ym);
         case poisson:
@@ -1042,7 +1051,9 @@ public class GLMModel extends Model<GLMModel,GLMModel.GLMParameters,GLMModel.GLM
   @Override
   protected String[][] scoringDomains(){
     String [][] domains = _output._domains;
-    if((_parms._family == Family.binomial || _parms._family == Family.quasibinomial) && _output._domains[_output._dinfo.responseChunkId(0)] == null) {
+    if((_parms._family == Family.binomial || _parms._family == Family.quasibinomial || 
+            _parms._family==Family.fractionalbinomial)
+            && _output._domains[_output._dinfo.responseChunkId(0)] == null) {
       domains = domains.clone();
       domains[_output._dinfo.responseChunkId(0)] = binomialClassNames;
     }
@@ -1206,7 +1217,8 @@ public class GLMModel extends Model<GLMModel,GLMModel.GLMParameters,GLMModel.GLM
         _random_column_names = Arrays.copyOf(glm._randomColNames, glm._randomColNames.length);
       }
       _coefficient_names[_coefficient_names.length-1] = "Intercept";
-      _binomial = (glm._parms._family == Family.binomial || glm._parms._family == Family.quasibinomial);
+      _binomial = (glm._parms._family == Family.binomial || glm._parms._family == Family.quasibinomial || 
+              glm._parms._family.equals(Family.fractionalbinomial));
       _nclasses = glm.nclasses();
       _multinomial = glm._parms._family == Family.multinomial;
       _ordinal = (glm._parms._family == Family.ordinal);
